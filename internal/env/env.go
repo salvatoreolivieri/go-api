@@ -1,7 +1,3 @@
-// Procedure:
-// 1. brew install direnv
-// 2. in zsh terminal run: eval "$(direnv hook zsh)"
-
 package env
 
 import (
