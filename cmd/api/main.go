@@ -16,15 +16,13 @@ func main() {
 	store := store.NewStorage(nil)
 
 	app := &application{
-		config,	
+		config,
 		store,
 	}
-
 
 	// instantiate the handler
 	mux := app.mount()
 
 	log.Fatal(app.run(mux))
-
 
 }

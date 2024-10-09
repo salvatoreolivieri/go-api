@@ -12,16 +12,16 @@ import (
 
 type application struct {
 	config config
-	store store.Storage
+	store  store.Storage
 }
 
 type config struct {
-    addr string
+	addr string
 	// db
 	// rateLimiter
 }
 
-func (app *application) mount() http.Handler{
+func (app *application) mount() http.Handler {
 
 	r := chi.NewRouter()
 
@@ -35,7 +35,7 @@ func (app *application) mount() http.Handler{
 	// through ctx.Done() that the request has timed out and further
 	// processing should be stopped.
 	r.Use(middleware.Timeout(60 * time.Second))
-	
+
 	r.Route("/v1", func(r chi.Router) {
 		// endpoints
 		r.Get("/health", app.healthCheckHandler)
@@ -45,15 +45,14 @@ func (app *application) mount() http.Handler{
 	return r
 }
 
-func (app  *application) run(mux http.Handler) error {
-
+func (app *application) run(mux http.Handler) error {
 
 	server := &http.Server{
-		Addr: app.config.addr, 
-		Handler: mux, // route handler
+		Addr:         app.config.addr,
+		Handler:      mux,              // route handler
 		WriteTimeout: time.Second * 30, // maximum duration before timouts write for the response
-		ReadTimeout: time.Second * 10, // maximum duration before timing out read for the request
-		IdleTimeout: time.Minute, // maximum duration before timing out idle connections
+		ReadTimeout:  time.Second * 10, // maximum duration before timing out read for the request
+		IdleTimeout:  time.Minute,      // maximum duration before timing out idle connections
 	}
 
 	log.Printf("listening on %s", app.config.addr)
