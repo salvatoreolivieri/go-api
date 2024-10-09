@@ -6,4 +6,6 @@ func (app *application) healthCheckHandler(w http.ResponseWriter, r *http.Reques
 
 	w.Write([]byte("server health is ok"))
 
+
+
 }
