@@ -108,3 +108,25 @@ func (s *PostStore) DeleteByID(ctx context.Context, id int64) error {
 
 	return nil
 }
+
+func (s *PostStore) UpdateByID(ctx context.Context, id int64, title, content string) (*Post, error) {
+
+	query := `
+		UPDATE posts
+		SET title = $2, content = $3, updated_at = NOW()
+		WHERE id = $1
+		RETURNING id, title, content, updated_at
+	`
+
+	var updatedPost Post
+	if err := s.db.QueryRowContext(ctx, query, id, title, content).Scan(
+		&updatedPost.ID,
+		&updatedPost.Title,
+		&updatedPost.Content,
+		&updatedPost.UpdatedAt,
+	); err != nil {
+		return nil, err
+	}
+
+	return &updatedPost, nil
+}

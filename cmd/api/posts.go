@@ -10,7 +10,7 @@ import (
 	"github.com/salvatoreolivieri/go-api/internal/store"
 )
 
-type CreatePostPayload struct {
+type CreateOrUpdatePostPayload struct {
 	Title   string   `json:"title" validate:"required,max=100"`
 	Content string   `json:"content" validate:"required,max=1000"`
 	Tags    []string `json:"tags"`
@@ -18,7 +18,7 @@ type CreatePostPayload struct {
 
 func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request) {
 
-	var payload CreatePostPayload
+	var payload CreateOrUpdatePostPayload
 
 	if err := readJSON(w, r, &payload); err != nil {
 		app.badRequestResponse(w, r, err)
@@ -108,6 +108,43 @@ func (app *application) deletePostHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	if err := writeJSON(w, http.StatusOK, fmt.Sprintf("Delete post with id: %d", id)); err != nil {
+		app.internalServerError(w, r, err)
+		return
+	}
+
+}
+
+func (app *application) updatePostHandler(w http.ResponseWriter, r *http.Request) {
+
+	// Post ID
+	idParams := chi.URLParam(r, "postID")
+	id, err := strconv.ParseInt((idParams), 10, 64)
+	if err != nil {
+		app.internalServerError(w, r, err)
+		return
+	}
+
+	// Payload to update
+	var payload CreateOrUpdatePostPayload
+	if err := readJSON(w, r, &payload); err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	if err := Validate.Struct(payload); err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	ctx := r.Context()
+
+	_, err = app.store.Posts.UpdateByID(ctx, id, payload.Title, payload.Content)
+	if err != nil {
+		app.internalServerError(w, r, err)
+		return
+	}
+
+	if err := writeJSON(w, http.StatusOK, fmt.Sprintf("INFO: successfully wrote JSON response for post with id: %v", id)); err != nil {
 		app.internalServerError(w, r, err)
 		return
 	}
