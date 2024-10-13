@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -84,6 +85,29 @@ func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 	post.Comments = comments
 
 	if err := writeJSON(w, http.StatusOK, post); err != nil {
+		app.internalServerError(w, r, err)
+		return
+	}
+
+}
+
+func (app *application) deletePostHandler(w http.ResponseWriter, r *http.Request) {
+	idParam := chi.URLParam(r, "postID")
+
+	id, err := strconv.ParseInt((idParam), 10, 64)
+	if err != nil {
+		app.internalServerError(w, r, err)
+		return
+	}
+
+	ctx := r.Context()
+
+	if err := app.store.Posts.DeleteByID(ctx, id); err != nil {
+		app.internalServerError(w, r, err)
+		return
+	}
+
+	if err := writeJSON(w, http.StatusOK, fmt.Sprintf("Delete post with id: %d", id)); err != nil {
 		app.internalServerError(w, r, err)
 		return
 	}
