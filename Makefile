@@ -13,6 +13,10 @@ migration:
 migrate-up:
 	@migrate -path=$(MIGRATIONS_PATH) -database=$(DB_ADDR) up
 
+.PHONY: migrate-force
+migrate-force:
+	DELETE FROM schema_migrations WHERE version = 5;
+
 .PHONY: migrate-down
 migrate-down:
 	@migrate -path=$(MIGRATIONS_PATH) -database=$(DB_ADDR) down $(filter-out $@,$(MAKECMDGOALS))
