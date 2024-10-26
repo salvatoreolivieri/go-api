@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	"github.com/salvatoreolivieri/go-api/internal/db"
 	"github.com/salvatoreolivieri/go-api/internal/env"
 	"github.com/salvatoreolivieri/go-api/internal/store"
@@ -38,6 +40,9 @@ func main() {
 			maxIdleTime:  env.GetString("DB_MAX_IDLE_TIME", "15m"),
 		},
 		env: env.GetString("ENV", "development"),
+		mail: mailConfig{
+			expiration: time.Hour * 24 * 3, // 3 days
+		},
 	}
 
 	// Logger

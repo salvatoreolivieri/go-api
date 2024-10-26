@@ -115,7 +115,7 @@ func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			id	path		int	true	"Post ID"
-//	@Success		204	{object} "Post successfully deleted"
+//	@Success		204	{object} store.Post
 //	@Failure		404	{object}	error
 //	@Failure		500	{object}	error
 //	@Security		ApiKeyAuth
