@@ -5,6 +5,7 @@ import (
 
 	"github.com/salvatoreolivieri/go-api/internal/db"
 	"github.com/salvatoreolivieri/go-api/internal/env"
+	"github.com/salvatoreolivieri/go-api/internal/mailer"
 	"github.com/salvatoreolivieri/go-api/internal/store"
 	"go.uber.org/zap"
 )
@@ -31,8 +32,9 @@ const version = "0.0.1"
 func main() {
 
 	config := config{
-		addr:   env.GetString("ADDR", ":8000"),
-		apiURL: env.GetString("EXTERNAL_URL", "localhost:8000"),
+		addr:        env.GetString("ADDR", ":8000"),
+		apiURL:      env.GetString("EXTERNAL_URL", "localhost:8000"),
+		frontendURL: env.GetString("FRONTEND_URL", "localhost:5173"),
 		db: dbConfig{
 			addr:         env.GetString("DB_ADDR", "postgres://admin:adminpassword@localhost/socialnetwork?sslmode=disable"),
 			maxOpenConns: env.GetInt("DB_MAX_OPEN_CONNS", 30),
@@ -41,6 +43,10 @@ func main() {
 		},
 		env: env.GetString("ENV", "development"),
 		mail: mailConfig{
+			sendGrid: sendGridConfig{
+				apiKey: env.GetString("SENDGRID_API_KEY", ""),
+			},
+			fromEmail:  env.GetString("FROM_EMAIL", ""),
 			expiration: time.Hour * 24 * 3, // 3 days
 		},
 	}
@@ -66,10 +72,13 @@ func main() {
 
 	store := store.NewStorage(db)
 
+	mailer := mailer.NewSendgrid(config.mail.sendGrid.apiKey, config.mail.fromEmail)
+
 	app := &application{
 		config,
 		store,
 		logger,
+		mailer,
 	}
 
 	// instantiate the handler

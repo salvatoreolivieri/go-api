@@ -2,7 +2,11 @@ module github.com/salvatoreolivieri/go-api
 
 go 1.23.2
 
-require github.com/swaggo/files/v2 v2.0.0 // indirect
+require (
+	github.com/sendgrid/rest v2.6.9+incompatible // indirect
+	github.com/sendgrid/sendgrid-go v3.16.0+incompatible // indirect
+	github.com/swaggo/files/v2 v2.0.0 // indirect
+)
 
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
