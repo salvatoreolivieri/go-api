@@ -44,9 +44,9 @@ func main() {
 		env: env.GetString("ENV", "development"),
 		mail: mailConfig{
 			sendGrid: sendGridConfig{
-				apiKey: env.GetString("SENDGRID_API_KEY", ""),
+				apiKey: env.GetString("SENDGRID_API_KEY", "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"),
 			},
-			fromEmail:  env.GetString("FROM_EMAIL", ""),
+			fromEmail:  env.GetString("FROM_EMAIL", "salvatore.olivieri07@gmail.com"),
 			expiration: time.Hour * 24 * 3, // 3 days
 		},
 	}
