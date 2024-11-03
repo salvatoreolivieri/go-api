@@ -49,6 +49,12 @@ func main() {
 			fromEmail:  env.GetString("FROM_EMAIL", "salvatore.olivieri07@gmail.com"),
 			expiration: time.Hour * 24 * 3, // 3 days
 		},
+		auth: authConfig{
+			basic: basicConfig{
+				user: "admin",
+				pass: "admin",
+			},
+		},
 	}
 
 	// Logger
