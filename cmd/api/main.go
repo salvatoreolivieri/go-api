@@ -3,6 +3,7 @@ package main
 import (
 	"time"
 
+	"github.com/salvatoreolivieri/go-api/internal/auth"
 	"github.com/salvatoreolivieri/go-api/internal/db"
 	"github.com/salvatoreolivieri/go-api/internal/env"
 	"github.com/salvatoreolivieri/go-api/internal/mailer"
@@ -54,6 +55,11 @@ func main() {
 				user: "admin",
 				pass: "admin",
 			},
+			token: tokenConfig{
+				secret:     env.GetString("AUTH_TOKEN_SECRET", "example"),
+				expiration: time.Hour * 24 * 3, // 3 days
+				issuer:     "gophersocial",
+			},
 		},
 	}
 
@@ -80,11 +86,18 @@ func main() {
 
 	mailer := mailer.NewSendgrid(config.mail.sendGrid.apiKey, config.mail.fromEmail)
 
+	authenticator := auth.NewJWTAuthenticator(
+		config.auth.token.secret,
+		config.auth.token.issuer,
+		config.auth.token.issuer,
+	)
+
 	app := &application{
 		config,
 		store,
 		logger,
 		mailer,
+		authenticator,
 	}
 
 	// instantiate the handler
