@@ -75,7 +75,7 @@ func main() {
 	logger := zap.Must(zap.NewProduction()).Sugar()
 	defer logger.Sync()
 
-	// Database
+	// Main Database
 	db, err := db.New(
 		config.db.addr,
 		config.db.maxOpenConns,
@@ -100,8 +100,10 @@ func main() {
 	store := store.NewStorage(db)
 	cacheStorage := cache.NewRedisStorage(redisDb)
 
+	// Mailer
 	mailer := mailer.NewSendgrid(config.mail.sendGrid.apiKey, config.mail.fromEmail)
 
+	// Authenticator
 	authenticator := auth.NewJWTAuthenticator(
 		config.auth.token.secret,
 		config.auth.token.issuer,

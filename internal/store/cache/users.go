@@ -17,7 +17,7 @@ type UserStore struct {
 const UserExpTime = time.Minute * 24
 
 func (s *UserStore) Get(ctx context.Context, userID int64) (*store.User, error) {
-	cacheKey := fmt.Sprintf("user-%v", userID)
+	cacheKey := fmt.Sprintf("user-%d", userID)
 
 	data, err := s.redisDb.Get(ctx, cacheKey).Result()
 	if err == redis.Nil {
@@ -39,7 +39,7 @@ func (s *UserStore) Get(ctx context.Context, userID int64) (*store.User, error) 
 }
 
 func (s *UserStore) Set(ctx context.Context, user *store.User) error {
-	cacheKey := fmt.Sprintf("user-%v", user.ID)
+	cacheKey := fmt.Sprintf("user-%d", user.ID)
 
 	json, err := json.Marshal(user)
 	if err != nil {
@@ -47,4 +47,10 @@ func (s *UserStore) Set(ctx context.Context, user *store.User) error {
 	}
 
 	return s.redisDb.Set(ctx, cacheKey, json, UserExpTime).Err()
+}
+
+func (s *UserStore) Delete(ctx context.Context, userID int64) {
+	cacheKey := fmt.Sprintf("user-%d", userID)
+
+	s.redisDb.Del(ctx, cacheKey)
 }

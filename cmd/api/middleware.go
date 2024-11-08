@@ -143,7 +143,7 @@ func (app *application) GetUser(ctx context.Context, userID int64) (*store.User,
 
 	// If user is not in cache, fetch it from the database
 	if user == nil {
-		user, err := app.store.Users.GetByID(ctx, userID)
+		user, err = app.store.Users.GetByID(ctx, userID)
 		if err != nil {
 			return nil, err
 		}
