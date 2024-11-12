@@ -17,6 +17,7 @@ import (
 
 	"github.com/salvatoreolivieri/go-api/docs" // This is requred to generate swagger docs
 	"github.com/salvatoreolivieri/go-api/internal/auth"
+	"github.com/salvatoreolivieri/go-api/internal/env"
 	"github.com/salvatoreolivieri/go-api/internal/mailer"
 	"github.com/salvatoreolivieri/go-api/internal/store"
 	"github.com/salvatoreolivieri/go-api/internal/store/cache"
@@ -88,7 +89,7 @@ func (app *application) mount() http.Handler {
 	r := chi.NewRouter()
 
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"https://*", "http://*"},
+		AllowedOrigins:   []string{env.GetString("CORS_ALLOWED_ORIGIN", "http://localhost:5174")},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
