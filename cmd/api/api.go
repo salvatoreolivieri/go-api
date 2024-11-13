@@ -20,6 +20,7 @@ import (
 	"github.com/salvatoreolivieri/go-api/internal/auth"
 	"github.com/salvatoreolivieri/go-api/internal/env"
 	"github.com/salvatoreolivieri/go-api/internal/mailer"
+	"github.com/salvatoreolivieri/go-api/internal/ratelimiter"
 	"github.com/salvatoreolivieri/go-api/internal/store"
 	"github.com/salvatoreolivieri/go-api/internal/store/cache"
 	httpSwagger "github.com/swaggo/http-swagger/v2"
@@ -32,6 +33,7 @@ type application struct {
 	logger        *zap.SugaredLogger
 	mailer        mailer.Client
 	authenticator auth.Authenticator
+	rateLimiter   ratelimiter.Limiter
 }
 
 type config struct {
@@ -43,6 +45,7 @@ type config struct {
 	frontendURL string
 	auth        authConfig
 	redisConfig redisConfig
+	rateLimiter ratelimiter.Config
 }
 
 type redisConfig struct {
@@ -103,6 +106,10 @@ func (app *application) mount() http.Handler {
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
+
+	if app.config.rateLimiter.Enabled {
+		r.Use(app.RateLimiterMiddleware)
+	}
 
 	// Set a timeout value on the request context (ctx), that will signal
 	// through ctx.Done() that the request has timed out and further

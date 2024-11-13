@@ -10,6 +10,7 @@ import (
 	"github.com/salvatoreolivieri/go-api/internal/db"
 	"github.com/salvatoreolivieri/go-api/internal/env"
 	"github.com/salvatoreolivieri/go-api/internal/mailer"
+	"github.com/salvatoreolivieri/go-api/internal/ratelimiter"
 	"github.com/salvatoreolivieri/go-api/internal/store"
 	"github.com/salvatoreolivieri/go-api/internal/store/cache"
 	"go.uber.org/zap"
@@ -71,6 +72,11 @@ func main() {
 				issuer:     "gophersocial",
 			},
 		},
+		rateLimiter: ratelimiter.Config{
+			RequestPerTimeFrame: env.GetInt("RATELIMITER_REQUESTS_COUNT", 20),
+			TimeFrame:           time.Second * 5,
+			Enabled:             env.GetBool("RATE_LIMITER_ENABLED", true),
+		},
 	}
 
 	// Logger
@@ -103,6 +109,9 @@ func main() {
 	cacheStorage := cache.NewRedisStorage(redisDb)
 
 	// Mailer
+	rateLimiter := ratelimiter.NewFixedWindowLimiter(config.rateLimiter.RequestPerTimeFrame, config.rateLimiter.TimeFrame)
+
+	// Mailer
 	mailer := mailer.NewSendgrid(config.mail.sendGrid.apiKey, config.mail.fromEmail)
 
 	// Authenticator
@@ -119,6 +128,7 @@ func main() {
 		logger,
 		mailer,
 		authenticator,
+		rateLimiter,
 	}
 
 	// Metric collected
